@@ -1,66 +1,96 @@
 #include "main.h"
-void print_buffer(char buffer[], int *buff_ind);
+
 /**
- * _printf - Printf function
- * @format: format.
- * Return: Printed chars.
- * Authors: Darryl and Isaac
+ * print_char - is used to accept char for print
+ * @buffer: is the pointer
+ * @buff_ind: - is the buffer input
+ * @args: - is the arguement used
+ * Author: Darynl Nnon and Isaac Adekunle
+ */
+void print_char(va_list args, char *buffer, int *buff_ind)
+{
+	char c = va_arg(args, int);
+
+	buffer[(*buff_ind)++] = c;
+}
+/**
+ * print_string - is used to accept str for print
+ * @buffer: is pointer used
+ * @buff_ind: is the buffer input
+ * @args: is the arguement used
+ */
+void print_string(va_list args, char *buffer, int *buff_ind)
+{
+	char *s = va_arg(args, char *);
+
+	while (*s)
+	{
+		buffer[(*buff_ind)++] = *s++;
+	}
+}
+/**
+ * print_percent - is used to accept percent for print
+ * @buffer: is the pointer used
+ * @buff_ind: is the pointer array
+ */
+void print_percent(char *buffer, int *buff_ind)
+{
+	buffer[(*buff_ind)++] = '%';
+}
+/**
+ * print_buffer - is used to buffer print
+ * @buffer: is the storage value
+ * @buff_ind: is the buffer input
+ */
+void print_buffer(char *buffer, int *buff_ind)
+{
+	write(1, buffer, *buff_ind);
+	*buff_ind = 0;
+}
+/**
+ * _printf - is used as our custom printf
+ * @format: is the input used
+ * Return: as specified
  */
 int _printf(const char *format, ...)
 {
-	int i, printed = 0, printed_chars = 0;
-	int flags, width, precision, size, buff_ind = 0;
-	va_list list;
-	char buffer[BUFF_SIZE];
+	va_list args;
+	int buff_ind = 0;
+	const char *traverse = format;
+	char *buffer = malloc(BUFF_SIZE * sizeof(char));
 
-	if (format == NULL)
+	if (buffer == NULL)
 		return (-1);
-
-	va_start(list, format);
-
-	for (i = 0; format && format[i] != '\0'; i++)
+	va_start(args, format);
+	while (*traverse != '\0')
 	{
-		if (format[i] != '%')
+		while (*traverse != '%' && *traverse != '\0')
 		{
-			buffer[buff_ind++] = format[i];
-			if (buff_ind == BUFF_SIZE)
-				print_buffer(buffer, &buff_ind);
-			/* write(1, &format[i], 1)*/
-			printed_chars++;
+			buffer[buff_ind++] = *traverse++;
 		}
-		else
+		if (*traverse == '\0')
 		{
+			break;
+			traverse++;
+		}
+		switch (*traverse)
+		{
+			case 'c':
+		print_char(args, buffer, &buff_ind);
+		break;
+			case 's':
+		print_string(args, buffer, &buff_ind);
+		break;
+			case '%':
+		print_percent(buffer, &buff_ind);
+		break;
+		}
+		if (buff_ind >= BUFF_SIZE - 1)
 			print_buffer(buffer, &buff_ind);
-			flags = get_flags(format, &i);
-			width = get_width(format, &i, list);
-			precision = get_precision(format, &i, list);
-			size = get_size(format, &i);
-			++i;
-			printed = handle_print(format, &i, list, buffer,
-				flags, width, precision, size);
-			if (printed == -1)
-				return (-1);
-			printed_chars += printed;
-		}
+		traverse++;
 	}
-
 	print_buffer(buffer, &buff_ind);
-
-	va_end(list);
-
-	return (printed_chars);
+	free(buffer);
+	va_end(args);
+	return (buff_ind);
 }
-
-/**
- * print_buffer - Prints the contents of the buffer if it exist
- * @buffer: Array of chars
- * @buff_ind: Index at which to add next char, represents the length.
- */
-void print_buffer(char buffer[], int *buff_ind)
-{
-	if (*buff_ind > 0)
-		write(1, &buffer[0], *buff_ind);
-
-	*buff_ind = 0;
-}
-
