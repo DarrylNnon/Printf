@@ -60,15 +60,13 @@ int _printf(const char *format, ...)
 	const char *traverse = format;
 	char *buffer = malloc(BUFF_SIZE * sizeof(char));
 
-	if (buffer == NULL)
+	if (buffer == NULL || !format || (format[0] == '%' && !format[1]))
 		return (-1);
 	va_start(args, format);
 	while (*traverse != '\0')
 	{
 		while (*traverse != '%' && *traverse != '\0')
-		{
 			buffer[buff_ind++] = *traverse++;
-		}
 		if (*traverse == '\0')
 		{
 			break;
