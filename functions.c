@@ -119,7 +119,7 @@ int print_int(va_list types, char buffer[],
 	n = convert_size_number(n, size);
 
 	if (n == 0)
-		buffer[j--] = '0';
+		buffer[i--] = '0';
 
 	buffer[BUFF_SIZE - 1] = '\0';
 	num = (unsigned long int)n;
@@ -138,7 +138,8 @@ int print_int(va_list types, char buffer[],
 
 	i++;
 
-	return (write_number(is_negative, j, buffer, flags, width, precision, size));
+	return (write_number(is_negative, i, buffer, flags, width, precision, size));
+
 }
 
 /************************* PRINT BINARY *************************/
